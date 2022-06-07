@@ -10,15 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.bigo.flickrsearch.android.ui.theme.FlickrSearchTheme
 
-fun greet(): String {
-    return "Hello, World!"
-}
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Greetings(greeting = greet())
+            Greetings(greeting = "Greeting is empty" )
         }
     }
 }
