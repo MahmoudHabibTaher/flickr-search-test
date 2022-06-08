@@ -7,6 +7,7 @@ plugins {
 
 version = "1.0"
 
+val lifecycleVersion = "2.5.0-rc01"
 val ktorVersion = "2.0.2"
 
 kotlin {
@@ -29,7 +30,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
-                implementation("io.insert-koin:koin-core:3.2.0")
+                api("io.insert-koin:koin-core:3.2.0")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-serialization:$ktorVersion")
             }
@@ -42,6 +43,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-android:$ktorVersion")
+                implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
             }
         }
         val androidTest by getting
