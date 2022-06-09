@@ -14,12 +14,20 @@ class PhotosRepository(
     private val photosApi: PhotosApi,
 ) : PhotosDataSource {
 
+    private val photos = mutableSetOf<Photo>()
+
     override suspend fun findPhotos(query: SearchQuery): Result<PhotosPage> =
         photosApi.searchPhotos(
             tags = query.tags,
             page = 1,
             perPage = 21
-        ).map { result -> result.photos }.map(photosPageRemoteMapper)
+        ).map { result -> result.photos }.map(photosPageRemoteMapper).also { result ->
+            photos.clear()
+            result.map { photos.addAll(it.photos) }
+        }
+
+    override suspend fun loadPhoto(photoId: String?): Result<Photo?> =
+        runCatching { photos.find { it.id == photoId } }
 }
 
 internal val photosPageRemoteMapper: EntityMapper<PhotosPageRemote, PhotosPage> =

@@ -10,17 +10,13 @@ data class PhotosSearchState(
     val loading: Boolean? = null,
     val photosPage: PhotosPage? = null,
     val error: String? = null,
-) {
-    companion object {
-        fun initial() = PhotosSearchState()
-    }
-}
+)
 
 class PhotosSearchViewModel(
     coroutineContextProvider: CoroutineContextProvider,
     private val searchPhotos: SearchPhotos,
 ) : CommonViewModel<PhotosSearchState>(
-    PhotosSearchState.initial(),
+    PhotosSearchState(),
     coroutineContextProvider,
 ) {
     fun search(tag: String) {

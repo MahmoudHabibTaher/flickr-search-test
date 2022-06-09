@@ -5,6 +5,7 @@ plugins {
 
 val composeVersion = "1.2.0-beta03"
 val lifecycleVersion = "2.5.0-rc01"
+val navVersion = "2.4.2"
 
 android {
     compileSdk = 32
@@ -41,6 +42,7 @@ dependencies {
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.animation:animation:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling:$composeVersion")
+    implementation("androidx.compose.material:material-icons-extended:$composeVersion")
     implementation("io.insert-koin:koin-android:3.2.0")
     implementation("io.insert-koin:koin-androidx-compose:3.2.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
@@ -48,4 +50,5 @@ dependencies {
     implementation("io.coil-kt:coil:2.1.0")
     implementation("io.coil-kt:coil-compose:2.1.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("androidx.navigation:navigation-compose:$navVersion")
 }

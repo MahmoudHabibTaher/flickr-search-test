@@ -2,12 +2,14 @@ package com.bigo.flickrsearch.android.photos.ui
 
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,9 +23,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.bigo.flickrsearch.android.R
+import com.bigo.flickrsearch.android.navigation.Screens
+import com.bigo.flickrsearch.android.ui.composables.CenterLoadingIndicator
+import com.bigo.flickrsearch.android.ui.composables.CommonAppBarTitle
+import com.bigo.flickrsearch.android.ui.composables.CommonNavigationIcon
 import com.bigo.flickrsearch.android.ui.theme.FlickrSearchTheme
 import com.bigo.flickrsearch.photos.domain.entities.Photo
 import com.bigo.flickrsearch.photos.domain.entities.PhotoInfo
@@ -34,26 +41,24 @@ private const val defaultInitialSearchTag = "Electrolux"
 
 @Composable
 fun PhotosSearchScreen(
+    navController: NavController,
+    photosSearchViewModel: PhotosSearchViewModel = getViewModel(),
     initialSearchTag: String = defaultInitialSearchTag,
-    photosSearchViewModel: PhotosSearchViewModel = getViewModel()
 ) {
-    photosSearchViewModel.search(initialSearchTag)
+    LaunchedEffect(initialSearchTag) {
+        photosSearchViewModel.search(initialSearchTag)
+    }
     FlickrSearchTheme {
         Scaffold(
             topBar = {
-                TopAppBar(title = {
-                    Text(
-                        text = stringResource(id = R.string.app_title),
-                        style = MaterialTheme.typography.h6
-                    )
-                })
+                TopAppBar(title = { CommonAppBarTitle(R.string.app_title) })
             }
         ) { padding ->
             Surface(
                 color = MaterialTheme.colors.background,
                 modifier = Modifier.padding(padding),
             ) {
-                PhotosSearchResult(photosSearchViewModel)
+                PhotosSearchResult(navController, photosSearchViewModel)
             }
         }
     }
@@ -61,6 +66,7 @@ fun PhotosSearchScreen(
 
 @Composable
 fun PhotosSearchResult(
+    navController: NavController,
     photosSearchViewModel: PhotosSearchViewModel
 ) {
     val photosSearchState by photosSearchViewModel.stateFlow.collectAsState()
@@ -72,7 +78,11 @@ fun PhotosSearchResult(
     when {
         loading -> CenterLoadingIndicator()
         error != null -> PhotosLoadError(error)
-        photosPage != null -> PhotosList(photos = photosPage.photos)
+        photosPage != null -> PhotosList(
+            photos = photosPage.photos,
+            onPhotoClick = { photo ->
+                navController.navigate(Screens.photoDetails(photo.id))
+            })
     }
 }
 
@@ -95,11 +105,16 @@ fun PhotosLoadError(error: String) {
 @Composable
 fun PhotosList(
     photos: List<Photo>,
+    onPhotoClick: (Photo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 128.dp), modifier = modifier) {
         items(photos) { photo ->
-            PhotoItem(photo, modifier = Modifier.padding(8.dp))
+            PhotoItem(
+                photo,
+                onPhotoClick = onPhotoClick,
+                modifier = Modifier.padding(8.dp)
+            )
         }
     }
 }
@@ -107,17 +122,20 @@ fun PhotosList(
 @Composable
 fun PhotoItem(
     photo: Photo,
+    onPhotoClick: (Photo) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.clickable {
+            onPhotoClick(photo)
+        },
         elevation = 2.dp
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             SubcomposeAsyncImage(
-                model = photoImageRequest(photo, LocalContext.current),
+                model = smallPhotoImageRequest(photo, LocalContext.current),
                 contentDescription = null,
                 loading = { CenterLoadingIndicator() },
                 error = { PhotoLoadError() },
@@ -130,21 +148,11 @@ fun PhotoItem(
     }
 }
 
-fun photoImageRequest(photo: Photo, context: Context) =
+fun smallPhotoImageRequest(photo: Photo, context: Context) =
     ImageRequest.Builder(context)
         .data(photo.thumbnail?.url ?: photo.medium?.url)
         .crossfade(true)
         .build()
-
-@Composable
-fun CenterLoadingIndicator() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        CircularProgressIndicator()
-    }
-}
 
 @Composable
 fun PhotoLoadError() {
@@ -178,7 +186,8 @@ fun PhotoItemPreview() {
                 server = "",
                 medium = PhotoInfo(url = "https://picsum.photos/300/460"),
                 thumbnail = PhotoInfo(url = "https://picsum.photos/300/460"),
-            )
+            ),
+            onPhotoClick = {}
         )
     }
 }
