@@ -28,12 +28,16 @@ class PhotosSearchViewModelTest {
     private val mainThreadSurrogate = newSingleThreadContext("UI Thread")
     private val coroutineContextProvider = TestCoroutineContextProvider(mainThreadSurrogate)
     private lateinit var mockApi: MockPhotosApi
+    private lateinit var photosRepository: PhotosRepository
+    private lateinit var searchPhotos: SearchPhotos
 
 
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
         mockApi = MockPhotosApi()
+        photosRepository = PhotosRepository(mockApi)
+        searchPhotos = SearchPhotos(photosRepository)
     }
 
     @AfterTest
@@ -47,7 +51,7 @@ class PhotosSearchViewModelTest {
         mockApi.result = Result.failure(Exception())
         val viewModel = PhotosSearchViewModel(
             coroutineContextProvider,
-            searchPhotos = SearchPhotos(PhotosRepository(mockApi))
+            searchPhotos,
         )
         assertEquals(viewModel.state, PhotosSearchState())
     }
@@ -58,7 +62,7 @@ class PhotosSearchViewModelTest {
             Result.success(SearchResultRemote(PhotosPageRemote(0, 0, 0, 0, emptyList())))
         val viewModel = PhotosSearchViewModel(
             coroutineContextProvider,
-            searchPhotos = SearchPhotos(PhotosRepository(mockApi))
+            searchPhotos,
         )
         viewModel.stateFlow.test {
             awaitItem()
@@ -115,7 +119,7 @@ class PhotosSearchViewModelTest {
 
         val viewModel = PhotosSearchViewModel(
             coroutineContextProvider,
-            searchPhotos = SearchPhotos(PhotosRepository(mockApi))
+            searchPhotos,
         )
         viewModel.stateFlow.test {
             awaitItem()
@@ -138,7 +142,7 @@ class PhotosSearchViewModelTest {
         mockApi.result = Result.failure(RuntimeException(errorMessage))
         val viewModel = PhotosSearchViewModel(
             coroutineContextProvider,
-            searchPhotos = SearchPhotos(PhotosRepository(mockApi))
+            searchPhotos,
         )
         viewModel.stateFlow.test {
             awaitItem()

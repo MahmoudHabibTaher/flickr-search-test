@@ -57,7 +57,7 @@ class PhotoDetailsViewModelTest {
     }
 
     @Test
-    fun `When find photo called first emit loading`() = runTest {
+    fun `When load photo called first emit loading`() = runTest {
         mockApi.result =
             Result.success(SearchResultRemote(PhotosPageRemote(0, 0, 0, 0, emptyList())))
         val viewModel = PhotoDetailsViewModel(
