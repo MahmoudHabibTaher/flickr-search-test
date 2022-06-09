@@ -7,6 +7,7 @@ plugins {
 
 version = "1.0"
 
+val coroutineVersion = "1.6.2"
 val lifecycleVersion = "2.5.0-rc01"
 val ktorVersion = "2.0.2"
 val napierVersion = "2.6.1"
@@ -30,7 +31,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
                 api("io.insert-koin:koin-core:3.2.0")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
@@ -42,6 +43,8 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")
+                implementation("app.cash.turbine:turbine:0.8.0")
             }
         }
         val androidMain by getting {
